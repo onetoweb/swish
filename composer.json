@@ -1,0 +1,32 @@
+{
+    "name": "onetoweb/swish",
+    "description": "Swish API Client",
+    "keywords": [
+        "api",
+        "php",
+        "swish"
+    ],
+    "type": "library",
+    "homepage": "https://github.com/onetoweb/swish",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jonathan van 't Ende",
+            "email": "jvantende@onetoweb.nl"
+        }
+    ],
+    "require": {
+        "php": ">=7.1.0",
+        "guzzlehttp/guzzle" : "^6.0 || ^7.0",
+        "ramsey/uuid": ">=3.0",
+        "symfony/process": ">=4.0"
+    },
+    "require-dev": {
+        "symfony/error-handler": "^5.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Onetoweb\\Swish\\": "src/"
+        }
+    }
+}
