@@ -12,9 +12,9 @@ class Qr extends AbstractEndpoint
     /**
      * @param array $data
      * 
-     * @return array|null
+     * @return array|string|null
      */
-    public function commerce(array $data)
+    public function commerce(array $data): array|string|null
     {
         return $this->client->postQr($this->client->getUrlQr('/v1/commerce'), $data);
     }
@@ -22,9 +22,9 @@ class Qr extends AbstractEndpoint
     /**
      * @param array $data
      * 
-     * @return array|null
+     * @return array|string|null
      */
-    public function prefilled(array $data)
+    public function prefilled(array $data): array|string|null
     {
         return $this->client->postQr($this->client->getUrlQr('/v1/prefilled'), $data);
     }

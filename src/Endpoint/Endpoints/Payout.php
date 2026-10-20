@@ -12,9 +12,9 @@ class Payout extends AbstractEndpoint
     /**
      * @param array $data
      * 
-     * @return mixed
+     * @return array|bool|null
      */
-    public function create(array $data)
+    public function create(array $data): array|bool|null
     {
         return $this->client->post($this->client->getUrl('/v1/payouts'), $data);
     }
@@ -24,7 +24,7 @@ class Payout extends AbstractEndpoint
      * 
      * @return array|null
      */
-    public function get(string $id): ?array
+    public function get(string $id): array|null
     {
         return $this->client->get($this->client->getUrl("/v1/payouts/$id"));
     }

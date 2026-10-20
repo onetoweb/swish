@@ -12,7 +12,7 @@ See [Documentation](docs/index.rst)
 
 ## Api Documentation
 
-See [Documentation](docs/index.rst)
+See [Documentation](https://developer.swish.nu/api)
 
 ## Change Log
 

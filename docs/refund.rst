@@ -30,4 +30,13 @@ Create refund
     ]);
 
 
+Get refund
+``````````
+
+.. code-block:: php
+    
+    $id = 'id';
+    $result = $client->refund->create($id);
+
+
 `Back to top <#top>`_

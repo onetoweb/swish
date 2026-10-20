@@ -18,16 +18,12 @@ use Exception;
 class CurlSystemHandler
 {
     /**
-     * @var string
-     */
-    private $curlBin;
-    
-    /**
      * @param string $curlBin
      */
-    public function __construct(string $curlBin)
-    {
-        $this->curlBin = $curlBin;
+    public function __construct(
+        private string $curlBin
+    ) {
+        
     }
     
     /**

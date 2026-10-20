@@ -3,6 +3,8 @@
 namespace Onetoweb\Swish;
 
 use Onetoweb\Swish\Endpoint\Endpoints;
+
+use Onetoweb\Swish\Config\{Method, BaseUrl};
 use GuzzleHttp\RequestOptions;
 use GuzzleHttp\Client as GuzzleCLient;
 use GuzzleHttp\HandlerStack;
@@ -14,53 +16,26 @@ use GuzzleHttp\HandlerStack;
 class Client
 {
     /**
-     * Base Urls.
-     */
-    public const BASE_URL = 'https://cpc.getswish.net/swish-cpcapi';
-    public const BASE_URL_QR = 'https://mpc.getswish.net/qrg-swish';
-    
-    /**
-     * Test Base Urls.
-     */
-    public const BASE_URL_TEST = 'https://mss.cpc.getswish.net/swish-cpcapi';
-    
-    /**
-     * Methods.
-     */
-    public const METHOD_GET = 'GET';
-    public const METHOD_POST = 'POST';
-    public const METHOD_PUT = 'PUT';
-    public const METHOD_PATCH = 'PATCH';
-    
-    /**
-     * @var string
-     */
-    private $certFile;
-    
-    /**
-     * @var string
-     */
-    private $certPassword;
-    
-    /**
-     * @var bool
-     */
-    private $testModus;
-    
-    /**
      * @var callable|null
      */
-    private $handler;
+    private $handler = null;
     
     /**
      * @param bool $testModus = false
      * @param string $certFile = null
      * @param string $certPassword = null
      */
-    public function __construct(bool $testModus = false, string $certFile = null, string $certPassword = null)
-    {
-        $this->testModus = $testModus;
+    public function __construct(
         
+        private bool $testModus = false,
+        
+        #[\SensitiveParameter]
+        private ?string $certFile = null,
+        
+        #[\SensitiveParameter]
+        private ?string $certPassword = null
+    ) {
+       
         if ($this->testModus and $certFile === null) {
             
             $this->certFile = __DIR__ . '/../cert/Swish_Merchant_TestCertificate_1234679304.p12';
@@ -94,9 +69,9 @@ class Client
     public function getUrl(string $path): string
     {
         if ($this->testModus) {
-            $baseUrl = self::BASE_URL_TEST;
+            $baseUrl = BaseUrl::TEST->value;
         } else {
-            $baseUrl = self::BASE_URL;
+            $baseUrl = BaseUrl::LIVE->value;
         }
         
         return "$baseUrl/api/".ltrim($path, '/');
@@ -109,62 +84,62 @@ class Client
      */
     public function getUrlQr(string $path): string
     {
-        return  self::BASE_URL_QR . "/api/".ltrim($path, '/');
+        return  BaseUrl::QR->value.'/api/'.ltrim($path, '/');
     }
     
     /**
      * @param string $url
      * @param array $query = []
      * 
-     * @return mixed
+     * @return array|bool|string|null
      */
-    public function get(string $url)
+    public function get(string $url): array|bool|string|null
     {
-        return $this->request(self::METHOD_GET, $url, []);
+        return $this->request(Method::GET, $url, []);
     }
     
     /**
      * @param string $url
      * @param array $data = []
      * 
-     * @return mixed
+     * @return array|bool|string|null
      */
-    public function post(string $url, array $data = [])
+    public function post(string $url, array $data = []): array|bool|string|null
     {
-        return $this->request(self::METHOD_POST, $url, $data);
+        return $this->request(Method::POST, $url, $data);
     }
     
     /**
      * @param string $url
      * @param array $data = []
      *
-     * @return mixed
+     * @return array|bool|string|null
      */
-    public function postQr(string $url, array $data = [])
+    public function postQr(string $url, array $data = []): array|bool|string|null
     {
-        return $this->requestQr(self::METHOD_POST, $url, $data);
+        return $this->requestQr(Method::POST, $url, $data);
     }
     
     /**
      * @param string $url
      * @param array $data = []
      * 
-     * @return mixed
+     * @return array|bool|string|null
      */
-    public function put(string $url, array $data = [])
+    public function put(string $url, array $data = []): array|bool|string|null
     {
-        return $this->request(self::METHOD_PUT, $url, $data);
+        return $this->request(Method::PUT, $url, $data);
     }
     
     /**
      * @param string $url
      * @param array $data = []
      * 
-     * @return mixed
+     * @return array|bool|string|null
      */
-    public function patch(string $url, array $data = [])
+    public function patch(string $url, array $data = []): array|bool|string|null
     {
-        return $this->request(self::METHOD_PATCH, $url, $data);
+        return $this->request(Method::PATCH, $url, $data);
     }
     
     /**
@@ -178,13 +153,13 @@ class Client
     }
     
     /**
-     * @param string $method
+     * @param Method $method
      * @param string $url
      * @param array $data = []
      * 
-     * @return mixed
+     * @return array|string|null
      */
-    public function requestQr(string $method, string $url, array $data = [])
+    public function requestQr(Method $method, string $url, array $data = []): array|string|null
     {
         $options = [
             RequestOptions::HTTP_ERRORS => false,
@@ -192,7 +167,7 @@ class Client
         ];
         
         // make request
-        $response = (new GuzzleCLient())->request($method, $url, $options);
+        $response = (new GuzzleCLient())->request($method->value, $url, $options);
         
         // get contents
         $contents = $response->getBody()->getContents();
@@ -210,13 +185,13 @@ class Client
     }
     
     /**
-     * @param string $method
+     * @param Method $method
      * @param string $url
      * @param array $data = []
      * 
-     * @return mixed
+     * @return array|bool|string|null
      */
-    public function request(string $method, string $url, array $data = [])
+    public function request(Method $method, string $url, array $data = []): array|bool|string|null
     {
         $options = [
             RequestOptions::HTTP_ERRORS => false,
@@ -227,12 +202,10 @@ class Client
             RequestOptions::VERIFY => __DIR__ . '/../cert/Swish_TLS_RootCA.pem',
             RequestOptions::JSON => $data,
             RequestOptions::HEADERS => [
-                'Content-Type' => ($method === self::METHOD_PATCH ? 'application/json-patch+json' : 'application/json')
+                'Content-Type' => ($method === Method::PATCH ? 'application/json-patch+json' : 'application/json')
             ],
-            'curl' => [
-                CURLOPT_SSLVERSION => CURL_SSLVERSION_TLSv1_2,
-                CURLOPT_SSLCERTTYPE => 'P12',
-            ]
+            RequestOptions::CRYPTO_METHOD => STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT,
+            RequestOptions::CERT_TYPE => 'p12',
         ];
         
         // init client
@@ -249,7 +222,7 @@ class Client
         }
         
         // make request
-        $response = $guzzleCLient->request($method, $url, $options);
+        $response = $guzzleCLient->request($method->value, $url, $options);
         
         // get contents
         $contents = $response->getBody()->getContents();
